@@ -1,0 +1,57 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        service: ${szt.nacos.application-name}
+        server-addr: ${szt.nacos.addr}
+        namespace: ${szt.nacos.namespace}
+        group: ${szt.nacos.group}
+      config:
+        file-extension: yaml
+        server-addr: ${szt.nacos.addr}
+        name: ${szt.nacos.application-name}
+        namespace: ${szt.nacos.namespace}
+        group: ${szt.nacos.group}
+    gateway:
+      routes:
+      - id: user-service
+        uri: lb://oam-employee
+        predicates:
+           - Path=/employee/**,/admin/**,/role/**
+      globalcors:
+        add-to-simple-url-handler-mapping: true # 解决options请求被拦截问题
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: # 允许哪些网站的跨域请求
+              - "http://localhost:5173"
+            allowedMethods: # 允许的跨域ajax的请求方式
+              - "GET"
+              - "POST"
+              - "DELETE"
+              - "PUT"
+              - "OPTIONS"
+            allowedHeaders: "*" # 允许在请求中携带的头信息
+            allowCredentials: true # 是否允许携带cookie
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+szt:
+  nacos:
+    addr: 127.0.0.1:8848
+    application-name: gateway
+    namespace: oam
+    group: local
+---
+spring:
+  config:
+    activate:
+      on-profile: local-server
+szt:
+  nacos:
+    addr: 172.18.1.251:8848
+    application-name: gateway
+    namespace: oam
+    group: local-server
